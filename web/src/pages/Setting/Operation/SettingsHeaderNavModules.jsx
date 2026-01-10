@@ -26,7 +26,10 @@ import {
   Row,
   Switch,
   Typography,
+  Input,
+  Select,
 } from '@douyinfe/semi-ui';
+import { IconPlus, IconDelete } from '@douyinfe/semi-icons';
 import { API, showError, showSuccess } from '../../../helpers';
 import { useTranslation } from 'react-i18next';
 import { StatusContext } from '../../../context/Status';
@@ -48,6 +51,7 @@ export default function SettingsHeaderNavModules(props) {
     },
     docs: true,
     about: true,
+    customMenus: [], // 自定义菜单数组
   });
 
   // 处理顶栏模块配置变更
@@ -88,9 +92,36 @@ export default function SettingsHeaderNavModules(props) {
       },
       docs: true,
       about: true,
+      customMenus: [],
     };
     setHeaderNavModules(defaultModules);
     showSuccess(t('已重置为默认配置'));
+  }
+
+  // 添加自定义菜单
+  function addCustomMenu() {
+    const newMenus = [...(headerNavModules.customMenus || [])];
+    newMenus.push({
+      text: '',
+      url: '',
+      type: 'internal', // 'internal' 内部路由, 'iframe' 外链内嵌, 'external' 外链跳转
+      enabled: true,
+    });
+    setHeaderNavModules({ ...headerNavModules, customMenus: newMenus });
+  }
+
+  // 删除自定义菜单
+  function removeCustomMenu(index) {
+    const newMenus = [...(headerNavModules.customMenus || [])];
+    newMenus.splice(index, 1);
+    setHeaderNavModules({ ...headerNavModules, customMenus: newMenus });
+  }
+
+  // 更新自定义菜单
+  function updateCustomMenu(index, field, value) {
+    const newMenus = [...(headerNavModules.customMenus || [])];
+    newMenus[index] = { ...newMenus[index], [field]: value };
+    setHeaderNavModules({ ...headerNavModules, customMenus: newMenus });
   }
 
   // 保存配置
@@ -142,6 +173,10 @@ export default function SettingsHeaderNavModules(props) {
           };
         }
 
+        // 确保 customMenus 存在
+        if (!modules.customMenus) {
+          modules.customMenus = [];
+        }
         setHeaderNavModules(modules);
       } catch (error) {
         // 使用默认配置
@@ -154,6 +189,7 @@ export default function SettingsHeaderNavModules(props) {
           },
           docs: true,
           about: true,
+          customMenus: [],
         };
         setHeaderNavModules(defaultModules);
       }
@@ -314,6 +350,134 @@ export default function SettingsHeaderNavModules(props) {
             </Col>
           ))}
         </Row>
+
+        {/* 自定义菜单配置 */}
+        <Card
+          style={{
+            marginBottom: '24px',
+            borderRadius: '8px',
+            border: '1px solid var(--semi-color-border)',
+          }}
+          bodyStyle={{ padding: '16px' }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '16px',
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  color: 'var(--semi-color-text-0)',
+                  marginBottom: '4px',
+                }}
+              >
+                {t('自定义菜单')}
+              </div>
+              <Text
+                type='secondary'
+                size='small'
+                style={{ fontSize: '12px' }}
+              >
+                {t('添加自定义导航链接，支持内部路由和外部链接')}
+              </Text>
+            </div>
+            <Button
+              icon={<IconPlus />}
+              onClick={addCustomMenu}
+              size='small'
+            >
+              {t('添加菜单')}
+            </Button>
+          </div>
+
+          {(headerNavModules.customMenus || []).length === 0 ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '20px',
+                color: 'var(--semi-color-text-2)',
+              }}
+            >
+              {t('暂无自定义菜单，点击上方按钮添加')}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {(headerNavModules.customMenus || []).map((menu, index) => (
+                <Card
+                  key={index}
+                  style={{
+                    background: 'var(--semi-color-bg-2)',
+                    borderRadius: '6px',
+                  }}
+                  bodyStyle={{ padding: '12px' }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <Switch
+                      checked={menu.enabled}
+                      onChange={(checked) =>
+                        updateCustomMenu(index, 'enabled', checked)
+                      }
+                      size='small'
+                    />
+                    <Input
+                      placeholder={t('菜单名称')}
+                      value={menu.text}
+                      onChange={(value) =>
+                        updateCustomMenu(index, 'text', value)
+                      }
+                      style={{ width: '120px' }}
+                      size='small'
+                    />
+                    <Select
+                      value={menu.type || 'internal'}
+                      onChange={(value) =>
+                        updateCustomMenu(index, 'type', value)
+                      }
+                      style={{ width: '120px' }}
+                      size='small'
+                    >
+                      <Select.Option value='internal'>{t('内部页面')}</Select.Option>
+                      <Select.Option value='iframe'>{t('外链内嵌')}</Select.Option>
+                      <Select.Option value='external'>{t('外链跳转')}</Select.Option>
+                    </Select>
+                    <Input
+                      placeholder={
+                        (menu.type || 'internal') === 'internal'
+                          ? t('内部路由 (如 /help)')
+                          : t('链接地址 (如 https://...)')
+                      }
+                      value={menu.url}
+                      onChange={(value) =>
+                        updateCustomMenu(index, 'url', value)
+                      }
+                      style={{ flex: 1 }}
+                      size='small'
+                    />
+                    <Button
+                      icon={<IconDelete />}
+                      type='danger'
+                      theme='borderless'
+                      onClick={() => removeCustomMenu(index)}
+                      size='small'
+                    />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </Card>
 
         <div
           style={{

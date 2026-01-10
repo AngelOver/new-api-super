@@ -27,6 +27,7 @@ import SettingsLog from '../../pages/Setting/Operation/SettingsLog';
 import SettingsMonitoring from '../../pages/Setting/Operation/SettingsMonitoring';
 import SettingsCreditLimit from '../../pages/Setting/Operation/SettingsCreditLimit';
 import SettingsCheckin from '../../pages/Setting/Operation/SettingsCheckin';
+import SettingsCustomerService from '../../pages/Setting/Operation/SettingsCustomerService';
 import { API, showError, toBoolean } from '../../helpers';
 
 const OperationSetting = () => {
@@ -75,6 +76,9 @@ const OperationSetting = () => {
     'checkin_setting.enabled': false,
     'checkin_setting.min_quota': 1000,
     'checkin_setting.max_quota': 10000,
+
+    /* 客服链接配置 */
+    CustomerServiceConfig: '',
   });
 
   let [loading, setLoading] = useState(false);
@@ -123,6 +127,10 @@ const OperationSetting = () => {
         {/* 顶栏模块管理 */}
         <div style={{ marginTop: '10px' }}>
           <SettingsHeaderNavModules options={inputs} refresh={onRefresh} />
+        </div>
+        {/* 客服链接配置 */}
+        <div style={{ marginTop: '10px' }}>
+          <SettingsCustomerService options={inputs} refresh={onRefresh} />
         </div>
         {/* 左侧边栏模块管理（管理员） */}
         <div style={{ marginTop: '10px' }}>

@@ -67,7 +67,7 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
     ];
 
     // 根据配置过滤导航链接
-    return allLinks.filter((link) => {
+    const filteredLinks = allLinks.filter((link) => {
       if (link.itemKey === 'docs') {
         return docsLink && modules.docs;
       }
@@ -79,6 +79,51 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
       }
       return modules[link.itemKey] === true;
     });
+
+    // 添加自定义菜单
+    const customMenus = modules.customMenus || [];
+    
+    // 计算 iframe 类型菜单的索引
+    let iframeIndex = 0;
+    const customLinks = customMenus
+      .filter((menu) => {
+        if (!menu.enabled || !menu.text || !menu.url) return false;
+        return true;
+      })
+      .map((menu, index) => {
+        const type = menu.type || 'internal';
+        // internal: 内部路由跳转
+        // iframe: 外链内嵌显示
+        // external: 外链新标签页打开
+        let to, isExternal, externalLink;
+        
+        if (type === 'internal') {
+          to = menu.url;
+          isExternal = false;
+          externalLink = undefined;
+        } else if (type === 'iframe') {
+          // 使用 iframe 专属索引，从配置中读取
+          to = `/iframe/${iframeIndex}`;
+          iframeIndex++;
+          isExternal = false;
+          externalLink = undefined;
+        } else {
+          // external
+          to = undefined;
+          isExternal = true;
+          externalLink = menu.url;
+        }
+        
+        return {
+          text: menu.text,
+          itemKey: `custom_${index}`,
+          to,
+          isExternal,
+          externalLink,
+        };
+      });
+
+    return [...filteredLinks, ...customLinks];
   }, [t, docsLink, headerNavModules]);
 
   return {

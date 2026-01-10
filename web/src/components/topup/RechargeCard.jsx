@@ -83,6 +83,7 @@ const RechargeCard = ({
   statusLoading,
   topupInfo,
   onOpenHistory,
+  customerServiceConfig,
 }) => {
   const onlineFormApiRef = useRef(null);
   const redeemFormApiRef = useRef(null);
@@ -99,6 +100,19 @@ const RechargeCard = ({
           <div>
             <Typography.Text className='text-lg font-medium'>
               {t('账户充值')}
+              {customerServiceConfig?.enabled && customerServiceConfig?.topup?.enabled && customerServiceConfig?.topup?.link && (
+                <>
+                  {' | '}
+                  <a
+                    href={customerServiceConfig.topup.link}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='font-bold text-blue-500 hover:text-blue-700'
+                  >
+                    {customerServiceConfig.topup.text}{customerServiceConfig.topup.linkText}
+                  </a>
+                </>
+              )}
             </Typography.Text>
             <div className='text-xs'>{t('多种充值方式，安全便捷')}</div>
           </div>

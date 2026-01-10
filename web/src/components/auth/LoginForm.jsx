@@ -17,9 +17,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../../context/User';
+import { StatusContext } from '../../context/Status';
 import {
   API,
   getLogo,
@@ -73,6 +74,18 @@ const LoginForm = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
   const [userState, userDispatch] = useContext(UserContext);
+  const [statusState] = useContext(StatusContext);
+
+  // 客服链接配置
+  const customerServiceConfig = useMemo(() => {
+    try {
+      const config = statusState?.status?.CustomerServiceConfig;
+      if (config) {
+        return JSON.parse(config);
+      }
+    } catch (e) {}
+    return null;
+  }, [statusState?.status?.CustomerServiceConfig]);
   const [turnstileEnabled, setTurnstileEnabled] = useState(false);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
@@ -471,6 +484,22 @@ const LoginForm = () => {
               </Title>
             </div>
             <div className='px-2 py-8'>
+              {customerServiceConfig?.enabled && customerServiceConfig?.login?.enabled && customerServiceConfig?.login?.link && (
+                <div className='text-center text-base mb-6'>
+                  <span className='font-bold text-gray-800 dark:text-gray-200'>
+                    {customerServiceConfig.login.text}
+                  </span>
+                  <a
+                    href={customerServiceConfig.login.link}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    style={{ color: 'rgba(74, 156, 247, 1)' }}
+                    className='font-bold hover:underline'
+                  >
+                    {customerServiceConfig.login.linkText}
+                  </a>
+                </div>
+              )}
               <div className='space-y-3'>
                 {status.wechat_login && (
                   <Button
@@ -637,6 +666,7 @@ const LoginForm = () => {
                   </Text>
                 </div>
               )}
+
             </div>
           </Card>
         </div>
@@ -660,6 +690,22 @@ const LoginForm = () => {
               </Title>
             </div>
             <div className='px-2 py-8'>
+              {customerServiceConfig?.enabled && customerServiceConfig?.login?.enabled && customerServiceConfig?.login?.link && (
+                <div className='text-center text-base mb-6'>
+                  <span className='font-bold text-gray-800 dark:text-gray-200'>
+                    {customerServiceConfig.login.text}
+                  </span>
+                  <a
+                    href={customerServiceConfig.login.link}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    style={{ color: 'rgba(74, 156, 247, 1)' }}
+                    className='font-bold hover:underline'
+                  >
+                    {customerServiceConfig.login.linkText}
+                  </a>
+                </div>
+              )}
               {status.passkey_login && passkeySupported && (
                 <Button
                   theme='outline'
@@ -793,6 +839,7 @@ const LoginForm = () => {
                   </Text>
                 </div>
               )}
+
             </div>
           </Card>
         </div>

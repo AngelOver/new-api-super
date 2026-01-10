@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useContext, useRef, useMemo } from 'react';
 import {
   API,
   showError,
@@ -43,6 +43,17 @@ const TopUp = () => {
   const { t } = useTranslation();
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState] = useContext(StatusContext);
+
+  // 客服链接配置
+  const customerServiceConfig = useMemo(() => {
+    try {
+      const config = statusState?.status?.CustomerServiceConfig;
+      if (config) {
+        return JSON.parse(config);
+      }
+    } catch (e) {}
+    return null;
+  }, [statusState?.status?.CustomerServiceConfig]);
 
   const [redemptionCode, setRedemptionCode] = useState('');
   const [amount, setAmount] = useState(0.0);
@@ -702,6 +713,7 @@ const TopUp = () => {
               statusLoading={statusLoading}
               topupInfo={topupInfo}
               onOpenHistory={handleOpenHistory}
+              customerServiceConfig={customerServiceConfig}
             />
           </div>
 

@@ -54,6 +54,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const About = lazy(() => import('./pages/About'));
 const UserAgreement = lazy(() => import('./pages/UserAgreement'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const IframePage = lazy(() => import('./pages/IframePage'));
 
 function App() {
   const location = useLocation();
@@ -101,6 +102,14 @@ function App() {
           }
         />
         <Route path='/forbidden' element={<Forbidden />} />
+        <Route
+          path='/iframe/:id'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <IframePage />
+            </Suspense>
+          }
+        />
         <Route
           path='/console/models'
           element={
