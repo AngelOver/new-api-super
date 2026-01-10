@@ -51,6 +51,7 @@ import LinuxDoIcon from '../common/logo/LinuxDoIcon';
 import WeChatIcon from '../common/logo/WeChatIcon';
 import TelegramLoginButton from 'react-telegram-login/src';
 import { UserContext } from '../../context/User';
+import { StatusContext } from '../../context/Status';
 import { useTranslation } from 'react-i18next';
 import { SiDiscord } from 'react-icons/si';
 
@@ -106,17 +107,12 @@ const RegisterForm = () => {
     localStorage.setItem('aff', affCode);
   }
 
-  const [status] = useState(() => {
-    const savedStatus = localStorage.getItem('status');
-    return savedStatus ? JSON.parse(savedStatus) : {};
-  });
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
 
-  const [showEmailVerification, setShowEmailVerification] = useState(() => {
-    return status.email_verification ?? false;
-  });
+  const status = statusState?.status || {};
 
   useEffect(() => {
-    setShowEmailVerification(status.email_verification);
+    setShowEmailVerification(status.email_verification ?? false);
     if (status.turnstile_check) {
       setTurnstileEnabled(true);
       setTurnstileSiteKey(status.turnstile_site_key);
